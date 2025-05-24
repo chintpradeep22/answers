@@ -1,32 +1,38 @@
-import math 
-import sys 
-def get_height(n): 
-    return math.ceil(math.log2(n)) 
-def minmax(height, depth, node_index, max_player, values, alpha, beta): 
-    print(f"Depth: {depth}, Node: {node_index}, Max Player: {max_player}, Alpha: {alpha}, Beta: {beta}") 
-    if depth == height: 
-        return values[node_index]
-    if max_player: 
-        best_value = -sys.maxsize 
-        for i in range(2): 
-            val = minmax(height, depth + 1, node_index * 2 + i, False, values, alpha, beta) 
-            best_value = max(best_value, val) 
-            alpha = max(alpha, best_value) 
-            if beta <= alpha: 
-                print(f"Pruning at Node: {node_index} (Max Player), Alpha: {alpha}, Beta: {beta}") 
-                break
-        return best_value 
-    else: 
-        best_value = sys.maxsize 
-        for i in range(2): 
-            val = minmax(height, depth + 1, node_index * 2 + i, True, values, alpha, beta) 
-            best_value = min(best_value, val) 
-            beta = min(beta, best_value) 
-            if beta <= alpha: 
-                print(f"Pruning at Node: {node_index} (Min Player), Alpha: {alpha}, Beta: {beta}")
-                break
-        return best_value
-values = [3, 17, 2, 12, 15, 25, 30, 5]
-height = get_height(len(values)) 
-result = minmax(height, 0, 0, True, values, -sys.maxsize, sys.maxsize) 
-print("Result:", result)
+def alpha_beta_pruning(node, depth, alpha, beta, maximizing, level=0):
+    print(f"Depth: {depth}, Node: {node}, Max Player: {maximizing}, Alpha: {alpha}, Beta: {beta}") 
+    if depth == 0: # Base case: leaf node
+        return node
+    
+    if maximizing:
+        value = float('-inf')
+        for i, child in enumerate(node):
+            value = max(value, alpha_beta_pruning(child, depth - 1, alpha, beta, False, level + 1))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                print(f"Pruned at Level {level} (MAX): Remaining Nodes = {node[i+1:]} with α = {alpha} >= β = {beta}")
+                break  # Beta cut-off
+        return value
+    else:
+        value = float('inf')
+        for i, child in enumerate(node):
+            value = min(value, alpha_beta_pruning(child, depth - 1, alpha, beta, True, level + 1))
+            beta = min(beta, value)
+            if beta <= alpha:
+                print(f"Pruned at Level {level} (MIN): Remaining Nodes = {node[i+1:]} with β = {beta} <= α = {alpha}")
+                break  # Alpha cut-off
+        return value
+
+def build_tree(leaves):
+    """Builds a binary tree from leaves for Minimax."""
+    tree = leaves
+    while len(tree) > 1:
+        tree = [tree[i:i + 2] for i in range(0, len(tree), 2)]
+    return tree[0]
+
+# User Input
+levels = 4
+leaf_values = [3, 17, 2, 12, 15, 25, 30, 5]
+
+tree = build_tree(leaf_values)
+pruned_value = alpha_beta_pruning(tree, levels - 1, float('-inf'), float('inf'), True)
+print(f"Optimal Minimax Value: {pruned_value}")
