@@ -17,7 +17,7 @@ for col in non_numeric_cols:
 X = df.drop("MEDV",axis=1)
 y = df["MEDV"]
 
-X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.3,random_state=50)
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=50)
 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
@@ -96,6 +96,18 @@ print("MSE:", pf_mse)
 print("RMSE:", pf_rmse)
 print("R² Score:", pf_r2)
 
+#Gradient Desent new
+
+from sklearn.linear_model import SGDRegressor
+
+sgd = SGDRegressor()
+
+sgd.fit(X_train,y_train)
+sgd_y_pred = sgd.predict(X_test)
+
+mse3 = mean_squared_error(y_test, sgd_y_pred)
+print(mse3)
+
 #Gradient Desent
 
 import numpy as np
@@ -162,7 +174,6 @@ print("\n🔹 Evaluation on Test Set:")
 print("MSE:", mse)
 print("RMSE:", np.sqrt(mse))
 print("R² Score:", r2)
-print(cost_history)
 # Step 12: Plot cost over iterations
 plt.title("Gradient Descent Convergence")
 plt.xlabel("Iterations")
